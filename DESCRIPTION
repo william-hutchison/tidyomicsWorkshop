@@ -33,6 +33,7 @@ Imports:
     tidyseurat,
     SpatialExperiment,
     tidySpatialExperiment,
+    plyranges,
     stats,
     utils,
     tibble,
@@ -63,7 +64,8 @@ Suggests:
     pkgdown
 Remotes:
     satijalab/seurat-wrappers,
-    william-hutchison/tidySpatialExperiment@ECCB2024
+    william-hutchison/tidySpatialExperiment@ECCB2024,
+    stemangiola/tidygate@ECCB2024
 Biarch: true
 URL: https://tidy-biology.github.io/TidyGenomicsTranscriptomicsWorkshop
 BugReports: https://github.com/tidy-biology/TidyGenomicsTranscriptomicsWorkshop/issues/new/choose

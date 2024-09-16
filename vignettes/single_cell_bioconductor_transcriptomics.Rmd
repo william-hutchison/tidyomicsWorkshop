@@ -60,7 +60,6 @@ frameborder="0">
 # Load packages
 library(SingleCellExperiment)
 library(ggplot2)
-library(plotly)
 library(dplyr)
 library(colorspace)
 library(dittoSeq)
@@ -333,6 +332,7 @@ single_cell_object |>
 We'll demonstrate creating a 3D plot using some data that has 3 UMAP dimensions. This is a fantastic way to visualise both reduced dimensions and metadata in the same representation. 
 
 ```{r umap plot 2, message = FALSE, warning = FALSE}
+library(tidySingleCellExperiment)
 pbmc <- tidyomicsWorkshop::sce_obj_UMAP3
 
 pbmc |>
@@ -343,7 +343,7 @@ pbmc |>
     color = ~cell_type,
     colors = dittoSeq::dittoColors()
   ) %>%
-  add_markers(size = I(1))
+  plotly::add_markers(size = I(1))
 ```
 
 ## Exercises
@@ -372,7 +372,7 @@ First let's have a look to the cell types that constitute this dataset
 
 ```{r nest SingleCellExperiment count}
 sce_obj |> 
-  count(cell_type)
+  dplyr::count(cell_type)
 ```
 
 Let's group the cells based on cell identity using `nest`
@@ -390,7 +390,7 @@ Let's see what the first element of the Surat column looks like
 
 ```{r nest sce 2}
 sce_obj_nested |> 
-  slice(1) |> 
+  dplyr::slice(1) |> 
   pull(sce)
 ```
 
@@ -440,7 +440,7 @@ Let's have a look to the first heatmap
 
 ```{r nest sce heatmap 2, fig.width=8, fig.height=8}
 sce_obj_nested |> 
-  slice(1) |> 
+  dplyr::slice(1) |> 
   pull(umap)
 ```
 
@@ -453,7 +453,7 @@ sce_obj |>
   nest(sce = -cell_type) |> 
   
   # Filter for sample with more than 30 cells
-  mutate(sce = map(sce, ~ .x |> add_count(sample) |> filter(n > 50))) |>
+  mutate(sce = map(sce, ~ .x |> add_count(sample) |> dplyr::filter(n > 50))) |>
   filter(map_int(sce, ncol) > 0) |>
 
   # Select significant genes
@@ -486,7 +486,6 @@ sce_obj |>
 
 - Answer this question avoiding to save temporary variables, and using the function add_count to count the cells (before nesting), and then filter
 - Answer this question avoiding to save temporary variables, and using the function map_int to count the cells (after nesting), and the filter
-
 
 **Session Information**
 
