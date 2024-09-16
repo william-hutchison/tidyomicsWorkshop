@@ -336,7 +336,7 @@ library(tidySingleCellExperiment)
 pbmc <- tidyomicsWorkshop::sce_obj_UMAP3
 
 pbmc |>
-  plot_ly(
+  ttservice::plot_ly(
     x = ~`UMAP_1`,
     y = ~`UMAP_2`,
     z = ~`UMAP_3`,
