@@ -1,6 +1,6 @@
 Package: tidyomicsWorkshop
 Title: Tidy genomic and transcriptomic analyses 
-Version: 0.16.3
+Version: 0.17.0
 Authors@R: 
     c(
     person(given = "Stefano",
@@ -14,14 +14,13 @@ Authors@R:
            email = "michaelisaiahlove@gmail.com",
            comment = c(ORCID = "0000-0001-8401-0545"))
 	   )
-Description: Workflow for BioC conference showing tidy genomic
-    and transcriptomic analyses.
+Description: Workshop material for tidyomics, including transcriptomics and genomics.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Depends:
     Biobase,
     R (>= 4.2.0)
@@ -32,6 +31,8 @@ Imports:
     tidySingleCellExperiment,
     tidygate,
     tidyseurat,
+    SpatialExperiment,
+    tidySpatialExperiment,
     stats,
     utils,
     tibble,
@@ -60,6 +61,9 @@ Suggests:
     knitr,
     rmarkdown,
     pkgdown
+Remotes:
+    satijalab/seurat-wrappers,
+    william-hutchison/tidySpatialExperiment@ECCB2024
 Biarch: true
 URL: https://tidy-biology.github.io/TidyGenomicsTranscriptomicsWorkshop
 BugReports: https://github.com/tidy-biology/TidyGenomicsTranscriptomicsWorkshop/issues/new/choose
