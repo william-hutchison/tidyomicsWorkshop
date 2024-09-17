@@ -55,7 +55,6 @@ Imports:
     dittoSeq,
     tidybulk,
     glue,
-    SeuratWrappers,
     scater,
     batchelor
 Suggests:
