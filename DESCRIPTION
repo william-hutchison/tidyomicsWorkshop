@@ -34,6 +34,8 @@ Imports:
     SpatialExperiment,
     tidySpatialExperiment,
     plyranges,
+    nullranges,
+    ggspavis,
     stats,
     utils,
     tibble,
