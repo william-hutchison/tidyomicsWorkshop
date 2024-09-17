@@ -184,19 +184,19 @@ pseudo_bulk_nested =
 	pseudo_bulk_nested |>
 	
 	# Identify top significant genes
-	mutate(top_genes = map_chr(
+	mutate(top_genes = map(
 		grouped_summarized_experiment, 
 		~ .x |> 
 			pivot_transcript() |> 
 			arrange(pvalue) |> 
-			head(1) |> 
-			pull(.feature)
+			dplyr::slice(1:10) |> 
+			pull(.feature) 
 	)) |> 
 	
 	# Filter top gene
 	mutate(grouped_summarized_experiment = map2(
 		grouped_summarized_experiment, top_genes,
-		~ filter(.x, .feature == .y)
+		~ .x |> filter(.feature %in% .y)
 	)) 
 
 pseudo_bulk_nested

@@ -341,7 +341,7 @@ The gated cells can then be divided into pseudobulks within a SummarizedExperime
 ```{r , eval=FALSE}
 spe_regions_aggregated <-
   spatial_data |>
-  aggregate_cells(c(.gated))
+  aggregate_cells(.gated)
 
 spe_regions_aggregated
 ```

@@ -58,6 +58,7 @@ Imports:
     tidybulk,
     glue,
     scater,
+    scran,
     batchelor
 Suggests:
     knitr,
