@@ -38,7 +38,7 @@ seurat_obj |>
 
   mutate(gamma_delta = signature_score > 0.7) |>
   
-  count(gamma_delta) |> 
+  dplyr::count(gamma_delta) |> 
   mutate(proportion = n/sum(n))
 ```
 

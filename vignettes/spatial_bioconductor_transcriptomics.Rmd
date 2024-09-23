@@ -77,7 +77,7 @@ doi: [10.1038/s41593-020-00787-0](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8
 
 ```{r, message = FALSE}
 # From https://bioconductor.org/packages/devel/bioc/vignettes/Banksy/inst/doc/multi-sample.html
-library(ExperimentHub)
+# library(ExperimentHub)
 
 library(STexampleData)
 spatial_data <- Visium_mouseCoronal()
