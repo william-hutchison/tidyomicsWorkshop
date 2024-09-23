@@ -39,7 +39,7 @@ seurat_obj |>
   mutate(gamma_delta = signature_score > 0.7) |>
   
   count(gamma_delta) |> 
-  metate(proportion = n/sum(n))
+  mutate(proportion = n/sum(n))
 ```
 
 ## Question 2
