@@ -27,6 +27,7 @@ Depends:
 Imports:
     SummarizedExperiment, 
     SingleCellExperiment,
+    Seurat,
     tidySummarizedExperiment,
     tidySingleCellExperiment,
     tidygate,
