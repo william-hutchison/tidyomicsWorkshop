@@ -59,7 +59,8 @@ Imports:
     glue,
     scater,
     scran,
-    batchelor
+    batchelor,
+    STexampleData
 Suggests:
     knitr,
     rmarkdown,
