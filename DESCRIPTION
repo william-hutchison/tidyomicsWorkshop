@@ -67,7 +67,7 @@ Suggests:
     pkgdown
 Remotes:
     satijalab/seurat-wrappers,
-    stemangiola/tidySingleCellExperiment
+    stemangiola/tidySingleCellExperiment,
     william-hutchison/tidySpatialExperiment
 Biarch: true
 URL: https://tidy-biology.github.io/TidyGenomicsTranscriptomicsWorkshop
