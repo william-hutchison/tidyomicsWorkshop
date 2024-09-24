@@ -7,7 +7,7 @@
 #'
 #' @format A `Seurat` object.
 #' @usage data(seurat_obj)
-#' @importFrom Seurat Seurat
+#' @import SeuratObject
 "seurat_obj"
 
 #' gate_seurat_obj
@@ -30,7 +30,7 @@
 #'
 #' @format A `Seurat` object.
 #' @usage data(seurat_obj_UMAP3)
-#' @importFrom Seurat Seurat
+#' @import SeuratObject
 "seurat_obj_UMAP3"
 
 #' pseudo_bulk
@@ -92,3 +92,70 @@
 #' @usage data(theme_multipanel)
 #' @importFrom ggplot2 theme
 "theme_multipanel"
+
+#' tidygate_env_gates
+#'
+#' A set of gates interactively drawn for spatial data using the `tidygate` package.
+#'
+#' This object contains gates that were drawn interactively on spatial data based on tissue morphology, 
+#' highlighting areas of interest for future reproducible analysis. These gates can be loaded and applied 
+#' to similar data for consistent and automated gating.
+#'
+#' @details 
+#' Gates were saved programmatically for future use. The object was created using the `gate` function 
+#' in `tidygate` and saved as an RDS file for reproducibility. This can be particularly useful in spatial 
+#' transcriptomics data analysis where regions of interest are manually gated.
+#'
+#' @return A list of x and y coordinates representing the interactive gates.
+#'
+#' @format A list containing the x and y coordinates for gates.
+#' 
+#' @usage data(tidygate_env_gates)
+#'
+#' @examples
+#' # Load the gates
+#' data(tidygate_env_gates)
+#' 
+#' # Apply the gates to new data for reproducible analysis
+#' # spatial_data <- applyGates(spatial_data, gates = tidygate_env_gates)
+#'
+#' @source Created interactively using the `tidygate` package
+"tidygate_env_gates"
+
+#' pbmc_h3k4me3_hg38
+#'
+#' H3K4me3 peaks for human PBMCs lifted over to hg38 genome assembly
+#'
+#' This object contains H3K4me3 peaks for human peripheral blood mononuclear cells (PBMCs) mapped to 
+#' the hg38 genome assembly. The peaks were initially from hg19 and were lifted over to hg38 using 
+#' a UCSC chain file. The peaks contain several columns of information including signal value, 
+#' q-value, and peak locations, which can be used for visualisation and analysis.
+#'
+#' @details 
+#' The H3K4me3 peaks were lifted over from the hg19 to hg38 genome assembly using the `liftOver` 
+#' function from the `rtracklayer` package. The `seqlevels` and `seqinfo` were aligned with the 
+#' `SingleCellExperiment` object `sce_sub`. The Ensembl-style chromosome naming convention (NCBI) 
+#' was applied for consistency. This dataset contains selected columns such as `signalValue`, 
+#' `qValue`, and `peak`, making it ready for downstream analysis or plotting.
+#'
+#' @return A GRanges object containing the H3K4me3 peaks for PBMCs in the hg38 genome assembly.
+#'
+#' @format A `GRanges` object with columns:
+#' \describe{
+#'   \item{signalValue}{The signal value for each peak.}
+#'   \item{qValue}{The q-value for the significance of each peak.}
+#'   \item{peak}{The peak location in the genome.}
+#' }
+#'
+#' @usage data(pbmc_h3k4me3_hg38)
+#'
+#' @examples
+#' # Load the dataset
+#' data(pbmc_h3k4me3_hg38)
+#' 
+#' # Plot q-values of the H3K4me3 peaks
+#' plot(pbmc_h3k4me3_hg38$qValue, type="l", ylab="q-value", main="H3K4me3 peaks")
+#' abline(v=5000, lty=2)
+#'
+#' @source H3K4me3 peak data was lifted from hg19 to hg38 using UCSC liftOver chain files.
+"pbmc_h3k4me3_hg38"
