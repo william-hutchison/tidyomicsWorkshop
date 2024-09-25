@@ -134,7 +134,7 @@ To explore the grouping, we can use tidyverse `slice` to choose a row (cell_type
 
 ```{r pseudobulk3}
 pseudo_bulk_nested |>
-	slice(1) |>
+	dplyr::slice(1) |>
 	pull(grouped_summarized_experiment)
 ```
 
@@ -172,7 +172,7 @@ If we pull out the SummarizedExperiment object for the first cell type, as befor
 
 ```{r pseudobulk6}
 pseudo_bulk_nested |>
-	slice(1) |>
+	dplyr::slice(1) |>
 	pull(grouped_summarized_experiment)
 ```
 

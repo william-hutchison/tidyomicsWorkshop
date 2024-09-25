@@ -453,7 +453,7 @@ First let's have a look to the cell types that constitute this dataset
 
 ```{r nest seurat count}
 seurat_obj |> 
-  count(cell_type)
+  dplyr::count(cell_type)
 ```
 
 Let's group the cells based on cell identity using `nest`
@@ -474,7 +474,7 @@ Let's see what the first element of the Surat column looks like
 
 ```{r nest seurat 2}
 seurat_obj_nested |> 
-  slice(1) |> 
+  dplyr::slice(1) |> 
   pull(seurat)
 ```
 Now, let's perform a differential gene-transcript abundance analysis between the two conditions for each cell type.
@@ -521,7 +521,7 @@ Let's have a look to the first heatmap
 
 ```{r nest seurat heatmap 2, fig.width=8, fig.height=8}
 seurat_obj_nested |> 
-  slice(1) |> 
+  dplyr::slice(1) |> 
   pull(heatmap)
 ```
 

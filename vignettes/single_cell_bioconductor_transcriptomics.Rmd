@@ -335,7 +335,7 @@ We'll demonstrate creating a 3D plot using some data that has 3 UMAP dimensions.
 pbmc <- tidyomicsWorkshop::sce_obj_UMAP3
 
 pbmc |>
-  plot_ly(
+  ttservice::plot_ly(
     x = ~`UMAP_1`,
     y = ~`UMAP_2`,
     z = ~`UMAP_3`,
@@ -371,7 +371,7 @@ First let's have a look to the cell types that constitute this dataset
 
 ```{r nest SingleCellExperiment count}
 sce_obj |> 
-  count(cell_type)
+  dplyr::count(cell_type)
 ```
 
 Let's group the cells based on cell identity using `nest`
@@ -389,7 +389,7 @@ Let's see what the first element of the Surat column looks like
 
 ```{r nest sce 2}
 sce_obj_nested |> 
-  slice(1) |> 
+  dplyr::slice(1) |> 
   pull(sce)
 ```
 
@@ -439,7 +439,7 @@ Let's have a look to the first heatmap
 
 ```{r nest sce heatmap 2, fig.width=8, fig.height=8}
 sce_obj_nested |> 
-  slice(1) |> 
+  dplyr::slice(1) |> 
   pull(umap)
 ```
 
