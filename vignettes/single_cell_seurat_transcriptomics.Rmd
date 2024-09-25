@@ -375,7 +375,7 @@ seurat_obj |>
 	NormalizeData(assay="RNA") |> 
 	FindVariableFeatures(nfeatures = 100, assay="RNA") |>
 	SplitObject(split.by = "file") |> 
-	SeuratWrappers::RunFastMNN(assay="RNA", features = 100) |> 
+	RunFastMNN(assay="RNA", features = 100) |> 
 	RunUMAP(reduction = "mnn", dims = 1:20) |> 
 	FindNeighbors(dims = 1:20, reduction = "mnn") |> 
 	FindClusters(resolution = 0.3)
