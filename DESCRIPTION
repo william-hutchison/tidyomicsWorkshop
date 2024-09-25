@@ -37,7 +37,6 @@ Imports:
     tidySpatialExperiment,
     plyranges,
     nullranges,
-    ggspavis,
     stats,
     utils,
     tibble,
@@ -48,25 +47,26 @@ Imports:
     tidyr,
     purrr,
     forcats,
-    ggrepel,
-    plotly,
-    igraph,
-    broom,
     devtools,
     rlang,
     magrittr,
     R.utils,
+Suggests:
+    knitr,
+    rmarkdown,
+    pkgdown,
+    STexampleData,
     dittoSeq,
     tidybulk,
     glue,
     scater,
     scran,
     batchelor,
-    STexampleData
-Suggests:
-    knitr,
-    rmarkdown,
-    pkgdown
+    ggrepel,
+    plotly,
+    igraph,
+    broom,
+    ggspavis
 Remotes:
     satijalab/seurat-wrappers,
     stemangiola/tidySingleCellExperiment,
