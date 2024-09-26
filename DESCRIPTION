@@ -54,7 +54,8 @@ Imports:
     tidybulk,
     glue,
     scater,
-    batchelor
+    batchelor,
+    DropletUtils
 Suggests:
     knitr,
     rmarkdown,
