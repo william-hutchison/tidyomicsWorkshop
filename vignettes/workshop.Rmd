@@ -1,0 +1,486 @@
+---
+title: "Streamline spatial and transcriptional analysis with tidyomics"
+author: "William Hutchison, Michael Love, Stefano Mangiola"
+output:
+    html_document:
+        toc: true
+        toc_depth: 3
+        toc_float: true
+fontsize: 11pt
+vignette: |
+  %\VignetteIndexEntry{Workshop}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+# Data used
+
+## Single cell RNA-sequence data
+
+The object `sce_obj` we will use was created as part of an ongoing study led by Stefano Mangiola and Bhupinder Pal on breast cancer systemic immune response. Peripheral blood mononuclear cells have been sequenced for RNA at the single-cell level. This data was produced using the 10X Chromium technology. The steps used to process the data are summarised below.
+
+-   `scran`, `scater`, and `DropletsUtils` packages have been used to eliminate empty droplets and dead cells. Samples were individually quality checked and cells were filtered for good gene coverage.
+-   Variable features were identified using `modelGeneVar`.
+-   Read counts were scaled and normalised using logNormCounts from `scuttle`.
+-   Data integration was performed using `fastMNN` with default parameters.
+-   PCA performed to reduce feature dimensionality.
+-   Nearest-neighbor cell networks were calculated using 30 principal components.
+-   2 UMAP dimensions were calculated using 30 principal components.
+-   Cells with similar transcriptome profiles were grouped into clusters using Louvain clustering from `scran`.
+
+## Spatially resolved RNA-sequence data
+
+The object `spe_obj` we will use was created as part of a study on gene expression in the human dorsolateral prefrontal cortex by Maynard et al. 2021 https://www.nature.com/articles/s41593-020-00787-0. This data was produced using the 10X Visium technoloy.
+
+# Set up
+
+## Load packages and data
+
+```{r}
+# Load packages
+library(tibble)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(readr)
+library(rlang)
+library(scales)
+library(STexampleData)
+library(ggrepel)
+
+# Load data
+data("sce_obj", package = "tidyomicsWorkshop")
+spe_obj <- Visium_humanDLPFC()
+```
+
+# The tidyverse
+
+## Base R and the `data.frame`
+
+The base R `data.frame` we are all familiar with.
+
+```{r}
+iris
+class(iris)
+```
+
+## Store tabular data as a tibble
+
+tibble provides a modernised `data.frame` with a more useful appearance. It also reduces the unexpected behviour sometimes produced by the `data.frame`, such as the silent conversion to a vector when subsetting a single colum.
+
+```{r}
+iris_tidy <-
+    iris |>
+    as_tibble()
+
+iris_tidy
+
+iris_tidy |>
+    class()
+```
+
+## Manipulate with dplyr
+
+dplyr provides a simple and intuitive grammar for data manipulations.
+
+```{r}
+iris_tidy |>
+    filter(Sepal.Width > 4)
+
+iris_tidy |>
+    mutate(Petal.Area = Petal.Length * Petal.Width)
+```
+
+## Tidy with tidyr
+
+tidyr allows you to quickly format your data following the tidy data convensions:
+
+- Each variable is a column; each column is a variable.
+- Each observation is a row; each row is an observation.
+- Each value is a cell; each cell is a single value.
+
+```{r}
+iris_tidy |>
+    nest(data = - Species)
+```
+
+## Plot with gglpot2
+
+ggplot2 allows us to easily build simple or complex plots. 
+
+```{r}
+iris |> 
+    ggplot(aes(x = Sepal.Length, y = Sepal.Width, colour = Petal.Width)) +
+    geom_point()
+     
+iris |> 
+    as_tibble() |>
+    ggplot(aes(x = Sepal.Length, y = Sepal.Width, colour = Petal.Width)) +
+    geom_point() +
+    facet_wrap(~ Species) +
+    labs(title = "Sepal and petal size accross iris species") +
+    theme_bw() +
+    theme(legend.position = "bottom")
+```
+
+# Bioconductor
+
+## The SingleCellExperiment class
+
+Bioconductor provides the `SingleCellExperiment` class for storing single-cell RNA-sequence data. Information about the cells can be accessed via `colData()` and sequence data can be accessed via `assay()`.
+
+```{r}
+sce_obj
+
+colData(sce_obj)
+assay(sce_obj, "counts")[1:5, 1:5]
+```
+
+## The SpatialExperiment class
+
+Bioconductor provides the `SpatialExperiment` class for storing spatially resolved RNA-sequence data. `SpatialExperiment` objects operate just like `SingleCellExperiment` objects, except with specific additions for handling spatial and image information. Spatial coordinates can be accessed via `spatialCoords()` and image data can be accessed via `imgData()`.
+
+```{r}
+spe_obj
+
+colData(spe_obj)
+assay(spe_obj, "counts")[1:5, 1:5]
+head(spatialCoords(spe_obj))
+imgData(spe_obj)
+```
+
+# Single-cell analysis with tidySingleCellExperiment
+
+## Functions available
+
+| Package             | Functions available                                                                                                                                                                                                |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SingleCellExperiment` | All                                                                                                                                                                                                                |
+| `dplyr`             | `arrange`,`bind_rows`, `bind_cols`, `distinct`, `filter`, `group_by`, `summarise`, `select`, `mutate`, `rename`, `left_join`, `right_join`, `inner_join`, `slice`, `sample_n`, `sample_frac`, `count`, `add_count` |
+| `tidyr`             | `nest`, `unnest`, `unite`, `separate`, `extract`, `pivot_longer`                                                                                                                                                   |
+| `ggplot2`           | `ggplot`                                                                                                                                                                                                           |
+| `plotly`            | `plot_ly`                                                                                                                                                                                                          |
+
+| Utility           | Description                                                                      |
+|-------------------|----------------------------------------------------------------------------------|
+| `as_tibble`       | Convert cell data to a `tbl_df`                                                  |
+| `join_features`   | Append feature data to cell data                                                 |
+| `aggregate_cells` | Aggregate cell-feature abundance into a pseudobulk `SummarizedExperiment` object |
+
+## The SingleCellExperiment-tibble abstraction
+
+tidySingleCellExperiment provides a SingleCellExperiment-tibble abstraction, printing information about the cells as if it were stored in a tibble.
+
+When tidySingleCellExperiment is loaded, the default representation is now the SingleCellExperiment-tibble abstraction.  However, the underyling SingleCellExperiment object is unchanged.
+
+```{r}
+library(tidySingleCellExperiment)
+
+sce_obj
+
+sce_obj |>
+    class()
+```
+
+The SingleCellExperiment-tibble abstraction can be turned on and off at any time.
+
+```{r}
+options("restore_SingleCellExperiment_show" = TRUE)
+sce_obj
+
+options("restore_SingleCellExperiment_show" = FALSE)
+sce_obj
+```
+
+## The tidy SingleCellExperiment object interface 
+
+tidySingleCellExperiment provides adapters for many functions from dplyr, tidyr and ggplot2. These adapters automatically operate on the same tibble abstraction. 
+
+For example, we can use `filter` to filter for cells in G1 cell-cycle stage.
+
+```{r}
+sce_obj |> 
+    filter(Phase == "G1")
+```
+
+Or maybe we want to extract a sample ID from a file path, and add that to a new column.
+
+```{r}
+sce_obj |> 
+    select(file)
+```
+
+```{r}
+# Create column for sample
+sce_obj <- 
+    sce_obj |>
+    mutate(sample_id = str_extract(file, "(?<=/)[^/]+(?=/outs)"))
+    
+# Inspect our work
+sce_obj |> 
+    distinct(file, sample_id)
+```
+
+No need to worry about the regular expression passed to str_extract(). But if you are interested, here is how it works:
+
+- (?<=/): This is a lookbehind assertion that matches any position preceded by a /. 
+- [^/]+: Matches any sequence of characters that are not /.
+- (?=/outs): This is a lookahead assertion that matches any position followed by /outs.
+
+## Analysing transcriptomic signatures
+
+Imagine we are interested in the gamma delta T cell gene signature from Pizzolato et al. 2019 (https://www.pnas.org/doi/10.1073/pnas.1818488116).
+
+With tidySingleCellExperiment's `join_features` we can view the gene abundance as columns joined to our single cell tibble.
+
+```{r}
+sce_obj <- 
+    sce_obj |>
+    join_features(c("CD3D", "TRDC", "TRGC1", "TRGC2", "CD8A", "CD8B"), shape = "wide", assay = "logcounts")
+
+sce_obj
+```
+
+We can then use `mutate` to create a column containing the signature score. To generate the score, we scale the sum of the 4 genes, CD3D, TRDC, TRGC1, TRGC2, and subtract the scaled sum of the 2 genes, CD8A and CD8B.
+
+```{r}
+sce_obj <-
+    sce_obj |>  
+    mutate(signature_score =
+        scales::rescale(CD3D + TRDC + TRGC1 + TRGC2, to = c(0, 1)) -
+        scales::rescale(CD8A + CD8B, to = c(0, 1))
+    )
+```
+
+The gamma delta T cell signature score can then be visualised with ggplot2.
+
+Here we use the "purple-orange" pallette from ggplot2 with a dark theme for better contrast.
+
+```{r}
+sce_obj |>
+  arrange(signature_score) |> # plot cells with high score last so they're not obscured by other cells
+  ggplot(aes(UMAP_1, UMAP_2, color = signature_score)) +
+  geom_point() +
+  scale_color_distiller(palette = "PuOr") +
+  theme_dark()
+```
+
+Or we could see how the scores we calculated for each cell align with the previously annotated cell types.
+
+```{r}
+sce_obj |> 
+    ggplot(aes(x = cell_type, y = signature_score)) +
+    geom_violin() +
+    geom_jitter(size = 0.2) +
+    coord_flip()
+```
+
+# Spatial analysis with tidySpatialExperiment
+
+## Functions available
+
+| Package             | Functions available                                                                                                                                                                                                |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SpatialExperiment` | All                                                                                                                                                                                                                |
+| `dplyr`             | `arrange`,`bind_rows`, `bind_cols`, `distinct`, `filter`, `group_by`, `summarise`, `select`, `mutate`, `rename`, `left_join`, `right_join`, `inner_join`, `slice`, `sample_n`, `sample_frac`, `count`, `add_count` |
+| `tidyr`             | `nest`, `unnest`, `unite`, `separate`, `extract`, `pivot_longer`                                                                                                                                                   |
+| `ggplot2`           | `ggplot`                                                                                                                                                                                                           |
+| `plotly`            | `plot_ly`                                                                                                                                                                                                          |
+
+| Utility           | Description                                                                      |
+|-------------------|----------------------------------------------------------------------------------|
+| `as_tibble`       | Convert cell data to a `tbl_df`                                                  |
+| `join_features`   | Append feature data to cell data                                                 |
+| `aggregate_cells` | Aggregate cell-feature abundance into a pseudobulk `SummarizedExperiment` object |
+| `rectangle`       | Select cells in a rectangular region of space                                    |
+| `ellipse`         | Select cells in an elliptical region of space                                    |
+| `gate`            | Interactively or programmatically select cells in an arbitrary region of space   |
+
+## The SpatialExperiment-tibble abstraction 
+
+The SpatialExperiment-tibble abstraction works just like the SingleCellExperiment-tibble abstraction, except it also includes spatial information.
+
+```{r}
+library(tidySpatialExperiment)
+
+spe_obj
+```
+
+## The tidy SpatialExperiment object interface 
+
+tidySpatialExperiment allows you to use the exact same tidy commands to interact with spatially resolved RNA-sequence data - meaning there is no need to learn a new syntax for each new data format you come into contact with. Everything is unified around a simple and consistant tidy interface.
+
+```{r}
+spe_obj |>
+   filter(array_col < 5)
+```
+
+## Interactive gating 
+
+Imagine we want to explore gene expression accross different regions of a tissue.
+
+For the interactive selection of cells in space, tidySpatialExperiment experiment provides the `gate()` function. This function uses tidygate, shiny and plotly to launch an interactive plot overlaying cells in position with image data. Additional parameters can be used to specify point colour, shape, size and alpha, either with a column in the SpatialExperiment object or a constant value.
+
+Later on, we will use edgeR's "Quasi Likeliehood Test" to check for differential RNA abundance between two regions of space. This test uses information accross multiple samples to estimate variability. For simplicity we are only using a single tissue sample for this demonstration. Because of this, we will need to use pseudo-replicates to test for differential abundace. Pseudo-replicates can introduce biases which should be carefully considered when interpretting results. 
+
+Using `gate()`, interactively select 3 small regions in one area and 3 small regions in another to create pseudo-replicates for our differential RNA abundance test. 
+
+```{r, eval = FALSE}
+spe_obj <-
+  spe_obj |>
+  gate(size = 0.2, alpha = 0.8)
+```
+
+```{r, echo = FALSE}
+# Load pre-recorded brush path from data for example
+data("example_gates", package = "tidyomicsWorkshop")
+
+important_gates <- example_gates
+tidygate_env <<- rlang::env()
+tidygate_env$gates <- example_gates
+
+spe_obj <-
+  spe_obj |>
+  gate(programmatic_gates = example_gates)
+```
+
+A record of which points appear in which gates is appended to the SpatialExperiment object in the `.gated` column. To select cells which appear within any gates, filter for non-NA values. To select cells which appear within a specific gate, string pattern matching can be used.
+
+```{r}
+# Select cells within any gate
+spe_obj |>
+  filter(!is.na(.gated))
+
+# Select cells within gate 2
+spe_obj |>
+  filter(str_detect(.gated, "2"))
+```
+
+Or we can visually inspect our select cells. 
+
+```{r}
+spe_obj |>
+    ggplot(aes(x = pxl_col_in_fullres, y = -pxl_row_in_fullres, colour = .gated)) +
+    geom_point()
+```
+
+Details of the interactively drawn gates are saved to `tidygate_env$gates`. This variable is overwritten each time interactive gates are drawn, so save it right away if you would like to access it later.
+
+```{r}
+# Inspe_objct previously drawn gates
+tidygate_env$gates
+```
+
+Here we save and load our important gates.
+
+```{r, eval = FALSE}
+# Save if needed
+tidygate_env$gates |>
+  write_rds("important_gates.rds")
+
+important_gates <-
+  read_rds("important_gates.rds")
+```
+
+If previously drawn gates are supplied to the `programmatic_gates` argument, cells will be gated programmatically. This feature allows the reproduction of previously drawn interactive gates.
+
+```{r}
+spe_obj |>
+    gate(programmatic_gates = important_gates) |>
+    filter(!is.na(.gated))
+```
+
+## Aggregate cells 
+
+Next we want to aggregate cells by which gate they are located in. tidySingleCellExperiment allows you aggregate cells by any variable with `aggregate_cells()`. This function returns a pseudo-bulk `SummarizedExperiment` object.
+
+```{r}
+spe_obj_aggregated <- 
+    spe_obj |>
+    aggregate_cells(.sample = .gated)
+
+spe_obj_aggregated
+```
+
+# Pseudobulk analysis with tidySummarizedExperiment and tidybulk
+
+We are now dealing with a different data container - the `SummarizedExperiment` class. Fortunately, there is a tidy adaptor for the `SummarizedExperiment` class too.
+
+```{r}
+library(tidySummarizedExperiment)
+
+spe_obj_aggregated
+```
+
+We can use `mutate()` and `filter()` to prepare our test. 
+
+```{r}
+spe_obj_aggregated <- 
+    spe_obj_aggregated |>
+    mutate(area = case_when(
+        .gated %in% c("1", "2", "3") ~ "1",
+        .gated %in% c("4", "5", "6") ~ "2"
+    )) |>
+    filter(!is.na(area))
+    
+```
+
+We are now ready to conduct our differential analysis. To achieve this we will use tidybulk - a utility package offering tidy access to a large number of establish bioinformatics tools. 
+
+First suitably abundant transcripts are identified with `keep_abundant()`, which uses edgeR's "Filter by expression" under the hood. Then we will test for differential abundant transcripts with `test_differential_abundance`, which uses edgeR's "Quasi Likeliehood Test" under the hood. 
+
+```{r}
+library(tidybulk)
+
+spe_obj_aggregated_de <-
+    spe_obj_aggregated |>
+    keep_abundant(
+        .sample = .sample,
+        .transcript = .feature,
+        .abundance = counts,
+       factor_of_interest = area
+    ) |>
+    test_differential_abundance(
+        .sample = .sample,
+        .transcript = .feature,
+        .abundance = counts,
+        .formula = ~ 0 + area,
+        contrasts = c("area1 - area2"),
+        method = "edgeR_quasi_likelihood",
+        action = "get"
+    )
+
+spe_obj_aggregated_de
+```
+
+To conclude our analysis, we can plot the results of our differential analysis as a volcano plot. 
+
+```{r}
+spe_obj_aggregated_de |>
+
+    # Colour each feature as significant if it is beyond a given threshold
+    mutate(significant_de = ifelse(`PValue___area1 - area2` < 0.05 & (`logFC___area1 - area2` > 1 | `logFC___area1 - area2` < -1), TRUE, FALSE)) |> 
+    
+    # Label each feature with its name if it is beyond a given threshold
+    mutate(label = ifelse(`PValue___area1 - area2` < 0.05 & (`logFC___area1 - area2` > 4 | `logFC___area1 - area2` < -4), transcript, NA)) |> 
+    
+    # Create the volcano plot
+    ggplot(aes(x = `logFC___area1 - area2`, y = `PValue___area1 - area2`, label = label, colour = significant_de)) +
+    geom_point() +
+    geom_text_repel(colour = "blue") +
+    scale_y_continuous(trans = compose_trans("log10", "reverse")) +
+    scale_colour_manual(values = c("grey", "black")) +
+    labs(title = str_c("DE contrast area 1 - area 2"), x = "Log2 fold change", y = "P-Value") +
+    theme_bw() +
+    theme(legend.position = "bottom")
+```
+
+# Session information
+```{r}
+sessionInfo()
+```

@@ -1,8 +1,13 @@
 Package: tidyomicsWorkshop
-Title: Tidy genomic and transcriptomic analyses 
-Version: 0.16.3
+Title: Streamline transcriptional and spatial analysis with tidyomics
+Version: 0.17.0
 Authors@R: 
     c(
+    person(given = "William",
+           family = "Hutchsion",
+           role = c("aut"),
+           email = "hutchison.w@wehi.edu.au",
+           comment = c(ORCID = "0009-0001-6242-4269")),
     person(given = "Stefano",
            family = "Mangiola",
            role = c("aut"),
@@ -23,17 +28,12 @@ LazyDataCompression: xz
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends:
-    Biobase,
     R (>= 4.2.0)
 Imports:
-    SummarizedExperiment, 
-    SingleCellExperiment,
     tidySummarizedExperiment,
     tidySingleCellExperiment,
-    tidygate,
-    tidyseurat,
-    stats,
-    utils,
+    tidySpatialExperiment,
+    tidybulk,
     tibble,
     stringr,
     ggplot2,
@@ -42,25 +42,19 @@ Imports:
     tidyr,
     purrr,
     forcats,
-    ggrepel,
-    plotly,
-    igraph,
-    broom,
-    devtools,
     rlang,
-    magrittr,
-    R.utils,
-    dittoSeq,
-    tidybulk,
-    glue,
-    scater,
-    batchelor
+    scales,
+    STexampleData,
+    ggrepel
 Suggests:
     knitr,
     rmarkdown,
     pkgdown
+Remotes:
+    william-hutchison/tidySpatialExperiment
+VignetteBuilder: 
+    knitr
 Biarch: true
 URL: https://tidy-biology.github.io/TidyGenomicsTranscriptomicsWorkshop
 BugReports: https://github.com/tidy-biology/TidyGenomicsTranscriptomicsWorkshop/issues/new/choose
-VignetteBuilder: knitr
 DockerImage: ghcr.io/tidy-biology/TidyGenomicsTranscriptomicsWorkshop:latest
