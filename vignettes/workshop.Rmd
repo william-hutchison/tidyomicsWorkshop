@@ -1,5 +1,5 @@
 ---
-title: "Streamline spatial and transcriptional analysis with tidyomics"
+title: "Streamline spatial and transcriptomic analysis with tidyomics"
 author: "William Hutchison, Michael Love, Stefano Mangiola"
 output:
     html_document:
@@ -60,18 +60,16 @@ spe_obj <- Visium_humanDLPFC()
 
 # The tidyverse
 
-## Base R and the `data.frame`
+## Store tabular data as a tibble
 
-The base R `data.frame` we are all familiar with.
+For comparison, let's start by looking at the base R `data.frame`.
 
 ```{r}
-iris
+head(iris)
 class(iris)
 ```
 
-## Store tabular data as a tibble
-
-tibble provides a modernised `data.frame` with a more useful appearance. It also reduces the unexpected behviour sometimes produced by the `data.frame`, such as the silent conversion to a vector when subsetting a single colum.
+tibble provides a modernised `data.frame` with a more useful appearance. It also reduces the unexpected behviour sometimes produced by the `data.frame`, such as the silent conversion to a vector when subsetting a single column.
 
 ```{r}
 iris_tidy <-

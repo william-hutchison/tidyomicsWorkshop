@@ -13,13 +13,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# tidyomics workshop
+# Streamline spatial and transcriptomic analysis with tidyomics
 
 ## Description
 
-This tutorial will present how to perform analysis of single-cell and spatially resolved RNA sequence data following the tidy data paradigm. The tidy data paradigm provides a standard way to organise data values within a dataset, where each variable is a column, each observation is a row, and data is manipulated using an easy-to-understand vocabulary. Most importantly, the data structure remains consistent across manipulation and analysis functions.
-
-This can be achieved with the packages of the tidyomics ecosystem.
+This workshop will introduce participants to the tidyomics software ecosystem.
 
 ## Installation
 
@@ -40,4 +38,6 @@ devtools::install_github("william-hutchison/tidyomicsWorkshop", build_vignettes 
 ## What you will learn
 
 - How to use tidyverse operations with the Bioconductor SingleCellExperiment, SpatialExperiment and SummarizedExperiment data classes.
-- How to string together these simple operations to build biologically meangingful analysis. 
+- How to use specialised utility functions provided by tidyomics.
+- How to string these simple operations together to build biologically meaningful analysis.
+
