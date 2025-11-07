@@ -1,5 +1,5 @@
 Package: tidyomicsWorkshop
-Title: Streamline transcriptional and spatial analysis with tidyomics
+Title: Streamline transcriptomic and spatial analysis with tidyomics
 Version: 0.17.0
 Authors@R: 
     c(
@@ -50,8 +50,7 @@ Suggests:
     knitr,
     rmarkdown,
     pkgdown
-Remotes:
-    william-hutchison/tidySpatialExperiment
+biocViews:
 VignetteBuilder: 
     knitr
 Biarch: true
