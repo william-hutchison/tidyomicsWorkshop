@@ -425,7 +425,6 @@ spe_obj_aggregated <-
         .gated %in% c("4", "5", "6") ~ "2"
     )) |>
     filter(!is.na(area))
-    
 ```
 
 We are now ready to conduct our differential analysis. To achieve this we will use tidybulk - a utility package offering tidy access to a large number of establish bioinformatics tools. 
@@ -437,18 +436,13 @@ library(tidybulk)
 
 spe_obj_aggregated_de <-
     spe_obj_aggregated |>
-    keep_abundant(
-        .sample = .sample,
-        .transcript = .feature,
-        .abundance = counts,
-       factor_of_interest = area
-    ) |>
+    keep_abundant() |>
     test_differential_abundance(
         .sample = .sample,
         .transcript = .feature,
         .abundance = counts,
-        .formula = ~ 0 + area,
-        contrasts = c("area1 - area2"),
+        .formula = ~ area,
+        contrasts = c("area2"),
         method = "edgeR_quasi_likelihood",
         action = "get"
     )
@@ -462,13 +456,13 @@ To conclude our analysis, we can plot the results of our differential analysis a
 spe_obj_aggregated_de |>
 
     # Colour each feature as significant if it is beyond a given threshold
-    mutate(significant_de = ifelse(`PValue___area1 - area2` < 0.05 & (`logFC___area1 - area2` > 1 | `logFC___area1 - area2` < -1), TRUE, FALSE)) |> 
+    mutate(significant_de = ifelse(`PValue___area2` < 0.05 & (`logFC___area2` > 1 | `logFC___area2` < -1), TRUE, FALSE)) |> 
     
     # Label each feature with its name if it is beyond a given threshold
-    mutate(label = ifelse(`PValue___area1 - area2` < 0.05 & (`logFC___area1 - area2` > 4 | `logFC___area1 - area2` < -4), transcript, NA)) |> 
-    
+    mutate(label = ifelse(`PValue___area2` < 0.05 & (`logFC___area2` > 4 | `logFC___area2` < -4), gene_id, NA)) |> 
+
     # Create the volcano plot
-    ggplot(aes(x = `logFC___area1 - area2`, y = `PValue___area1 - area2`, label = label, colour = significant_de)) +
+    ggplot(aes(x = `logFC___area2`, y = `PValue___area2`, label = label, colour = significant_de)) +
     geom_point() +
     geom_text_repel(colour = "blue") +
     scale_y_continuous(trans = compose_trans("log10", "reverse")) +
