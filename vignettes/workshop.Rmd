@@ -331,7 +331,7 @@ Using `gate()`, interactively select 3 small regions in one area and 3 small reg
 ```{r, eval = FALSE}
 spe_obj <-
   spe_obj |>
-  gate(size = 0.2, alpha = 0.8)
+  gate(size = 0.2, alpha = 0.8, rasterise_points = TRUE)
 ```
 
 ```{r, echo = FALSE}
@@ -411,6 +411,7 @@ We are now dealing with a different data container - the `SummarizedExperiment` 
 
 ```{r}
 library(tidySummarizedExperiment)
+library(tidyprint)
 
 spe_obj_aggregated
 ```
@@ -455,11 +456,15 @@ To conclude our analysis, we can plot the results of our differential analysis a
 ```{r}
 spe_obj_aggregated_de |>
 
+    # Select gene data
+    rowData() |>
+    as_tibble() |>
+
     # Colour each feature as significant if it is beyond a given threshold
     mutate(significant_de = ifelse(`PValue___area2` < 0.05 & (`logFC___area2` > 1 | `logFC___area2` < -1), TRUE, FALSE)) |> 
     
     # Label each feature with its name if it is beyond a given threshold
-    mutate(label = ifelse(`PValue___area2` < 0.05 & (`logFC___area2` > 4 | `logFC___area2` < -4), gene_id, NA)) |> 
+    mutate(label = ifelse(`PValue___area2` < 0.05 & (`logFC___area2` > 3 | `logFC___area2` < -3), feature, NA)) |> 
 
     # Create the volcano plot
     ggplot(aes(x = `logFC___area2`, y = `PValue___area2`, label = label, colour = significant_de)) +
@@ -467,7 +472,7 @@ spe_obj_aggregated_de |>
     geom_text_repel(colour = "blue") +
     scale_y_continuous(trans = compose_trans("log10", "reverse")) +
     scale_colour_manual(values = c("grey", "black")) +
-    labs(title = str_c("DE contrast area 1 - area 2"), x = "Log2 fold change", y = "P-Value") +
+    labs(title = str_c("DE contrast area 2"), x = "Log2 fold change", y = "P-Value") +
     theme_bw() +
     theme(legend.position = "bottom")
 ```

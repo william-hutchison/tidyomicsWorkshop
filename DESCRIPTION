@@ -34,6 +34,7 @@ Imports:
     tidySingleCellExperiment,
     tidySpatialExperiment,
     tidybulk,
+    tidyprint,
     tibble,
     stringr,
     ggplot2,
@@ -51,6 +52,10 @@ Suggests:
     rmarkdown,
     pkgdown, 
     edgeR
+Remotes:
+    github::william-hutchison/tidySpatialExperiment@add-gating-rasterisation,
+    github::william-hutchison/tidygate@master,
+    github::tidyomics/tidyprint
 biocViews:
 VignetteBuilder: 
     knitr
