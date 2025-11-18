@@ -35,6 +35,7 @@ Imports:
     tidySpatialExperiment,
     tidybulk,
     tidyprint,
+    tidygate (>= 1.0.15),
     tibble,
     stringr,
     ggplot2,
@@ -46,7 +47,8 @@ Imports:
     rlang,
     scales,
     STexampleData,
-    ggrepel
+    ggrepel,
+    BiocStyle
 Suggests:
     knitr,
     rmarkdown,
